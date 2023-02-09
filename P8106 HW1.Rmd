@@ -1,0 +1,21 @@
+---
+title: "P8106 HW1"
+author: "Cary Ni"
+date: "2023-02-09"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(glmnet)
+library(caret)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# load the datasets for model building
+training_df = read_csv("housing_training.csv") %>% 
+  janitor::clean_names()
+```
+
+
