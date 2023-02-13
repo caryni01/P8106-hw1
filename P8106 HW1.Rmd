@@ -15,7 +15,61 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 # load the datasets for model building
 training_df = read_csv("housing_training.csv") %>% 
-  janitor::clean_names()
+  janitor::clean_names() %>% 
+  na.omit()
+# create covariates matrix
+predictors = model.matrix(sale_price ~ ., data = training_df)[,-1]
+# create response vector
+response = training_df %>% pull(sale_price)
 ```
 
+```{r}
+# set cross validation methods used in train object
+ctrl_1 = trainControl(method = "repeatedcv", number = 10, repeats = 5)
+
+set.seed(1)
+# build the linear least squared model with caret
+lm_model = train(predictors, response, method = "lm", trControl = ctrl_1)
+coef(lm_model$finalModel)
+summary(lm_model)
+```
+
+```{r}
+set.seed(1)
+# build lasso model based on lambda.min
+lasso_model_1 = train(predictors, response, 
+                    method = "glmnet",
+                    tuneGrid = expand.grid(alpha = 1,
+                                           lambda = exp(seq(6, -2, length=100))),
+                    trControl = ctrl_1)
+# show the best lambda with lowest cv rmse
+lasso_model$bestTune
+# show coefficients of best model
+coef(lasso_model$finalModel, lasso_model$bestTune$lambda)
+plot(lasso_model, xTrans = log)
+```
+
+```{r}
+# build lasso model based on lambda.1se
+set.seed(1)
+
+```
+
+```{r}
+set.seed(1)
+# build elastic net model with caret
+elnet_model = train(predictors, response, 
+                    method = "glmnet",
+                    tuneGrid = expand.grid(alpha = seq(0, 1, length=21),
+                                           lambda = exp(seq(6, -2, length=50))),
+                    trControl = ctrl_1)
+myCol<- rainbow(21)
+myPar <- list(superpose.symbol = list(col = myCol),
+superpose.line = list(col = myCol))
+plot(elnet_model, par.settings = myPar)
+# show the best lambda and alpha combination with lowest cv rmse
+elnet_model$bestTune
+# show coefficients of best model
+coef(elnet_model$finalModel, elnet_model$bestTune$lambda)
+```
 
