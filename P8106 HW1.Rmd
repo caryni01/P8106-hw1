@@ -2,13 +2,14 @@
 title: "P8106 HW1"
 author: "Cary Ni"
 date: "2023-02-09"
-output: html_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(glmnet)
 library(caret)
+library(corrplot)
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 ```
 
@@ -37,6 +38,18 @@ get_test_mse = function(input_model, x_test, y_test) {
 }
 ```
 
+# Correlation plot to check collinearity between covariates (based on training data)
+
+```{r}
+cor(predictors) %>% corrplot(
+  method = "circle", type = "full", 
+  addCoef.col = 1, number.font =0.5,
+  tl.col="black", tl.srt=90, tl.cex = 0.5,
+  insig = "blank", diag=FALSE, number.cex = .3)
+```
+
+Remedy of collinearity.
+
 # Linear least squared model
 
 ```{r}
@@ -60,7 +73,7 @@ set.seed(1)
 lasso_model_1 = train(predictors, response, 
                     method = "glmnet",
                     tuneGrid = expand.grid(alpha = 1,
-                                           lambda = exp(seq(6, -2, length=100))),
+                                           lambda = exp(seq(-2, 8, length=100))),
                     trControl = ctrl_1)
 plot(lasso_model_1, xTrans = log)
 # show the best lambda with lowest cv rmse
@@ -84,7 +97,7 @@ set.seed(1)
 lasso_model_2 = train(predictors, response, 
                     method = "glmnet",
                     tuneGrid = expand.grid(alpha = 1,
-                                           lambda = exp(seq(6, -2, length=100))),
+                                           lambda = exp(seq(-2, 8, length=100))),
                     trControl = ctrl_2)
 # show the best lambda based on 1se rule
 lasso_model_2$bestTune
@@ -107,7 +120,7 @@ set.seed(1)
 elnet_model = train(predictors, response, 
                     method = "glmnet",
                     tuneGrid = expand.grid(alpha = seq(0, 1, length=21),
-                                           lambda = exp(seq(8, -2, length=50))),
+                                           lambda = exp(seq(-2, 8, length=50))),
                     trControl = ctrl_1)
 myCol<- rainbow(21)
 myPar <- list(superpose.symbol = list(col = myCol),
@@ -128,7 +141,7 @@ set.seed(1)
 elnet_model_2 = train(predictors, response, 
                     method = "glmnet",
                     tuneGrid = expand.grid(alpha = seq(0, 1, length=21),
-                                           lambda = exp(seq(8, -2, length=50))),
+                                           lambda = exp(seq(-2, 8, length=50))),
                     trControl = ctrl_2)
 elnet_model_2$bestTune
 # show coefficients of best model
@@ -137,9 +150,33 @@ coef(elnet_model_2$finalModel, elnet_model_2$bestTune$lambda)
 
 The selected elastic net model with lowest cv rmse has best alpha = 0.05 and lambda = 582.5 shown above. The test mse of the model is 4.39e8. When 1se lambda is applied in this elastic net model, the best alpha becomes 0 and lambda is the largest value in the tuneGrid set (2980.96 in this case). It suggests that it becomes ridge regression and none of the parameters shrink to zero and fails to simplify the model. Therefore, applying 1se rule is not practical in selecting tuning parameters in this case. 
 
-#
+# Partial least squares model
 
 ```{r}
+set.seed(1)
+pls_model = train(predictors, response,
+                method = "pls",
+                tuneGrid = data.frame(ncomp = 1:19),
+                trControl = ctrl_1,
+                preProcess = c("center", "scale"))
+ggplot(pls_model, highlight = TRUE) + 
+  scale_x_continuous(breaks = seq(0,20,by=1))
+# get test mse of the Partial least squares model
+get_test_mse(pls_model, predictors_test, response_test)
+```
 
+It can shown that 12 components are included in the partial least squares model with lowest cv rmse. The test mse is 4.50e8.
+
+# Compare the performance of models above
+
+```{r}
+resamp = resamples(
+  list(
+    least_square = lm_model,
+    lasso = lasso_model_2,
+    elastic_net = elnet_model,
+    pls = pls_model))
+summary(resamp)
+bwplot(resamp, metric = "RMSE")
 ```
 
