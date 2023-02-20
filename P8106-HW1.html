@@ -425,48 +425,7 @@ ctrl_1 = trainControl(method = &quot;repeatedcv&quot;, number = 10, repeats = 5)
 set.seed(1)
 # build the linear least squared model with caret
 lm_model = train(predictors, response, method = &quot;lm&quot;, trControl = ctrl_1)
-coef(lm_model$finalModel)</code></pre>
-<pre><code>##                (Intercept)                gr_liv_area 
-##              -4.984628e+06               2.458001e+01 
-##               first_flr_sf              second_flr_sf 
-##               4.252481e+01               4.176763e+01 
-##              total_bsmt_sf            low_qual_fin_sf 
-##               3.519195e+01                         NA 
-##               wood_deck_sf              open_porch_sf 
-##               1.202429e+01               1.617780e+01 
-##                bsmt_unf_sf               mas_vnr_area 
-##              -2.086972e+01               1.045801e+01 
-##                garage_cars                garage_area 
-##               4.228630e+03               7.769075e+00 
-##                 year_built            tot_rms_abv_grd 
-##               3.251188e+02              -3.838101e+03 
-##                  full_bath        overall_qualAverage 
-##              -4.340544e+03              -5.013000e+03 
-##  overall_qualBelow_Average      overall_qualExcellent 
-##              -1.279921e+04               7.260609e+04 
-##           overall_qualFair           overall_qualGood 
-##              -1.114686e+04               1.226308e+04 
-## overall_qualVery_Excellent      overall_qualVery_Good 
-##               1.303770e+05               3.797518e+04 
-##           kitchen_qualFair           kitchen_qualGood 
-##              -2.662852e+04              -1.878675e+04 
-##        kitchen_qualTypical                 fireplaces 
-##              -2.676512e+04               1.138083e+04 
-##           fireplace_quFair           fireplace_quGood 
-##              -7.206510e+03               6.069919e+02 
-##   fireplace_quNo_Fireplace           fireplace_quPoor 
-##               3.394267e+03              -5.184597e+03 
-##        fireplace_quTypical             exter_qualFair 
-##              -6.397856e+03              -3.854088e+04 
-##             exter_qualGood          exter_qualTypical 
-##              -1.993620e+04              -2.436104e+04 
-##               lot_frontage                   lot_area 
-##               1.024022e+02               6.041670e-01 
-##                  longitude                   latitude 
-##              -3.481322e+04               5.874429e+04 
-##                   misc_val                  year_sold 
-##               9.171290e-01              -6.454655e+02</code></pre>
-<pre class="r"><code>summary(lm_model)</code></pre>
+summary(lm_model)</code></pre>
 <pre><code>## 
 ## Call:
 ## lm(formula = .outcome ~ ., data = dat)

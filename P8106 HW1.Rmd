@@ -59,7 +59,6 @@ ctrl_1 = trainControl(method = "repeatedcv", number = 10, repeats = 5)
 set.seed(1)
 # build the linear least squared model with caret
 lm_model = train(predictors, response, method = "lm", trControl = ctrl_1)
-coef(lm_model$finalModel)
 summary(lm_model)
 # get test mse of linear least squared model
 get_test_mse(lm_model, predictors_test, response_test)
