@@ -108,11 +108,11 @@ coef(lasso_model_2$finalModel, lasso_model_2$bestTune$lambda)
 # get test mse of lasso model based on 1se
 get_test_mse(lasso_model_2, predictors_test, response_test)
 # show number of predictors (excluding intercept)
-num_coff_2 = coef(lasso_model_1$finalModel, lasso_model_1$bestTune$lambda) 
+num_coff_2 = coef(lasso_model_2$finalModel, lasso_model_2$bestTune$lambda) 
 sum(num_coff_2 != 0) - 1
 ```
 
-It can be seen that both lambda.min and 1se generate a model with 37 predictors.The selected lambda for lowest cv rmse is 62.89 while the 1se rule gives lambda of 372.1. Since the lasso model based on 1se rule has smaller test mse which is 4.21e8 then lambda.min which is 4.40e8, the lasso model based on 1se is favored. 
+It can be seen that lambda.min generate a model with 37 predictors while 1se rule reduces number of predictors to 36.The selected lambda for lowest cv rmse is 62.89 while the 1se rule gives lambda of 372.1. Since the lasso model based on 1se rule has smaller test mse which is 4.21e8 than lambda.min which is 4.40e8, the lasso model based on 1se is favored. 
 
 ## Elastic net model
 
