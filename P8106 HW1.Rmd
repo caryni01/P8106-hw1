@@ -2,7 +2,7 @@
 title: "P8106 HW1"
 author: "Cary Ni"
 date: "2023-02-09"
-output: github_document
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -38,7 +38,7 @@ get_test_mse = function(input_model, x_test, y_test) {
 }
 ```
 
-# Correlation plot to check collinearity between covariates (based on training data)
+## Correlation plot to check collinearity between covariates (based on training data)
 
 ```{r}
 cor(predictors) %>% corrplot(
@@ -48,9 +48,9 @@ cor(predictors) %>% corrplot(
   insig = "blank", diag=FALSE, number.cex = .3)
 ```
 
-Remedy of collinearity.
+It can be seen from the correlation plot that some are the covariates have high correlation coefficients to each to other, which leads to the issue of collinearity. In order to remedy for the potential multicollinearity among  covariates, regularization methods such as lasso, elastic net, and partial least squares are used to are used to minimize the influence brought by collinearity.
 
-# Linear least squared model
+## Linear least squared model
 
 ```{r}
 # set cross validation methods used in train object
@@ -65,7 +65,9 @@ summary(lm_model)
 get_test_mse(lm_model, predictors_test, response_test)
 ```
 
-# Lasso model based on lambda.min
+The least squared model has 38 variables shown above. 
+
+## Lasso model based on lambda.min
 
 ```{r}
 set.seed(1)
@@ -87,7 +89,7 @@ num_coff = coef(lasso_model_1$finalModel, lasso_model_1$bestTune$lambda)
 sum(num_coff != 0) - 1
 ```
 
-# Lasso model based on 1se rule
+### Lasso model based on 1se rule
 
 ```{r}
 # build lasso model based on lambda.1se
@@ -112,7 +114,7 @@ sum(num_coff_2 != 0) - 1
 
 It can be seen that both lambda.min and 1se generate a model with 37 predictors.The selected lambda for lowest cv rmse is 62.89 while the 1se rule gives lambda of 372.1. Since the lasso model based on 1se rule has smaller test mse which is 4.21e8 then lambda.min which is 4.40e8, the lasso model based on 1se is favored. 
 
-# Elastic net model
+## Elastic net model
 
 ```{r}
 set.seed(1)
@@ -134,7 +136,7 @@ coef(elnet_model$finalModel, elnet_model$bestTune$lambda)
 get_test_mse(elnet_model, predictors_test, response_test)
 ```
 
-## Try Elastic net model with 1se
+### Try Elastic net model with 1se
 
 ```{r}
 set.seed(1)
@@ -150,7 +152,7 @@ coef(elnet_model_2$finalModel, elnet_model_2$bestTune$lambda)
 
 The selected elastic net model with lowest cv rmse has best alpha = 0.05 and lambda = 582.5 shown above. The test mse of the model is 4.39e8. When 1se lambda is applied in this elastic net model, the best alpha becomes 0 and lambda is the largest value in the tuneGrid set (2980.96 in this case). It suggests that it becomes ridge regression and none of the parameters shrink to zero and fails to simplify the model. Therefore, applying 1se rule is not practical in selecting tuning parameters in this case. 
 
-# Partial least squares model
+## Partial least squares model
 
 ```{r}
 set.seed(1)
@@ -167,9 +169,10 @@ get_test_mse(pls_model, predictors_test, response_test)
 
 It can shown that 12 components are included in the partial least squares model with lowest cv rmse. The test mse is 4.50e8.
 
-# Compare the performance of models above
+## Compare the performance of models above
 
 ```{r}
+# compare the model performance through resample method
 resamp = resamples(
   list(
     least_square = lm_model,
@@ -180,3 +183,4 @@ summary(resamp)
 bwplot(resamp, metric = "RMSE")
 ```
 
+As shown in the summary statistics and boxplot above, the elastic net model gives lowest rmse and mean absolute error, and highest R squared value. Since lasso model fails to considerably reduce the number of predictors and partial least squares model is not favored in terms of intepretability, I would simply choose the elastic net model as the final predictive model for its predictive superiority. 
